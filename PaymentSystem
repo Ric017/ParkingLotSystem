@@ -1,0 +1,26 @@
+package com.mycompany.parkinglotsystem;
+
+/**
+ *
+ * @author ericr
+ */
+public class PaymentSystem {
+    private ParkingLot parkingLot;
+    private TicketingSystem ticket;
+
+    // Constructor
+    public PaymentSystem(ParkingLot parkingLot, TicketingSystem ticket) {
+        this.parkingLot = parkingLot;
+        this.ticket = ticket;
+    }
+
+    // Process payment and issue ticket
+    public void issueTicketAndProcessPayment(String vehicleId, double amount) {
+        // Assuming that the ticket is already created and the vehicle has entered the lot
+        if (ticket != null) {
+            System.out.println("Payment of $" + amount + " received for vehicle " + vehicleId);
+        } else {
+            System.out.println("No entry or exit times available for vehicle: " + vehicleId);
+        }
+    }
+}
