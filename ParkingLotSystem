@@ -1,0 +1,61 @@
+package com.mycompany.parkinglotsystem;
+
+/**
+ *
+ * @author ericr
+ */
+public class ParkingLotSystem {
+    public static void main(String[] args) {
+        // Create a parking lot instance with 5 spots
+        ParkingLot parkingLot = new ParkingLot(5);
+
+        // Show initial availability
+        System.out.println("Initial Parking Lot Status:");
+        parkingLot.showAvailability();
+
+        // Assign vehicles to parking spots
+        System.out.println("\nAssigning vehicles...");
+        parkingLot.assignSpot("ABC123");  // Assign vehicle with ID 'ABC123'
+        parkingLot.assignSpot("XYZ456");  // Assign vehicle with ID 'XYZ456'
+        parkingLot.assignSpot("LMN789");  // Assign vehicle with ID 'LMN789'
+        parkingLot.assignSpot("PQR321");  // Assign vehicle with ID 'PQR321'
+
+        // Show updated parking lot availability after assignments
+        System.out.println("\nUpdated Parking Lot Status after assigning vehicles:");
+        parkingLot.showAvailability();  // Show updated availability (1 available spot)
+
+        // Simulate vehicles exiting after some time
+        try {
+            Thread.sleep(5000);  // Sleep for 5 seconds to simulate time spent in parking
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // Exit vehicles and update availability
+        System.out.println("\nExiting vehicles...");
+        parkingLot.exitVehicle(2);  // Exit vehicle from spot 2
+        parkingLot.exitVehicle(5);  // Exit vehicle from spot 5
+
+        // Create PaymentSystem instances for each vehicle and issue tickets
+        TicketingSystem ticket1 = new TicketingSystem("ABC123");
+        TicketingSystem ticket2 = new TicketingSystem("XYZ456");
+        TicketingSystem ticket3 = new TicketingSystem("LMN789");
+        TicketingSystem ticket4 = new TicketingSystem("PQR321");
+
+        PaymentSystem paymentSystem1 = new PaymentSystem(parkingLot, ticket1);
+        PaymentSystem paymentSystem2 = new PaymentSystem(parkingLot, ticket2);
+        PaymentSystem paymentSystem3 = new PaymentSystem(parkingLot, ticket3);
+        PaymentSystem paymentSystem4 = new PaymentSystem(parkingLot, ticket4);
+
+        // Issue ticket and process payment
+        System.out.println("\nProcessing payment for vehicles...");
+        paymentSystem1.issueTicketAndProcessPayment("ABC123", 10.00);  // Example payment amount
+        paymentSystem2.issueTicketAndProcessPayment("XYZ456", 15.00);
+        paymentSystem3.issueTicketAndProcessPayment("LMN789", 20.00);
+        paymentSystem4.issueTicketAndProcessPayment("PQR321", 25.00);
+
+        // Show updated parking lot availability after vehicle exits and payment processing
+        System.out.println("\nUpdated Parking Lot Status after vehicle exits and payment processing:");
+        parkingLot.showAvailability();
+    }
+}
