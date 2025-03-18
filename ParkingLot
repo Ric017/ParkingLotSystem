@@ -1,0 +1,72 @@
+package com.mycompany.parkinglotsystem;
+
+/**
+ *
+ * @author ericr
+ */
+public class ParkingLot {
+    private int totalSpots;
+    private int availableSpots;
+    private String[] parkingStatus;
+    private TicketingSystem[] ticketSystems;
+
+    // Constructor
+    public ParkingLot(int totalSpots) {
+        this.totalSpots = totalSpots;
+        this.availableSpots = totalSpots;
+        this.parkingStatus = new String[totalSpots]; // null means spot is free
+        this.ticketSystems = new TicketingSystem[totalSpots];  // Ticket systems for each vehicle
+    }
+
+    // Method to assign a spot to a vehicle
+    public Integer assignSpot(String vehicleId) {
+        if (availableSpots > 0) {
+            for (int i = 0; i < parkingStatus.length; i++) {
+                if (parkingStatus[i] == null) {  // If spot is free
+                    parkingStatus[i] = vehicleId;  // Assign the vehicle to the spot
+                    availableSpots--;
+                    TicketingSystem ticket = new TicketingSystem(vehicleId);
+                    ticket.setEntryTime();  // Set the entry time when the vehicle is assigned
+                    ticketSystems[i] = ticket;  // Save the ticket system for this spot
+                    System.out.println("Spot " + (i + 1) + " assigned to vehicle: " + vehicleId);
+                    return i + 1;  // Returning spot number (1-indexed)
+                }
+            }
+        } else {
+            System.out.println("Parking lot is full! Cannot assign spot.");
+            return null;  // No spots available
+        }
+        return null;
+    }
+
+    // Method to remove a vehicle and free up a spot
+    public void exitVehicle(int spotNumber) {
+        if (spotNumber > 0 && spotNumber <= totalSpots) {
+            if (parkingStatus[spotNumber - 1] != null) {
+                TicketingSystem ticket = ticketSystems[spotNumber - 1];
+                ticket.setExitTime();  // Set the exit time when the vehicle exits
+                System.out.println("Vehicle " + parkingStatus[spotNumber - 1] + " is exiting from spot " + spotNumber);
+                ticket.showTicketDetails();  // Show ticket details with entry and exit times
+                parkingStatus[spotNumber - 1] = null;
+                ticketSystems[spotNumber - 1] = null;  // Clear the ticket system for this spot
+                availableSpots++;
+            } else {
+                System.out.println("Spot " + spotNumber + " is already vacant.");
+            }
+        } else {
+            System.out.println("Invalid spot number.");
+        }
+    }
+
+    // Method to show the parking availability dashboard
+    public void showAvailability() {
+        System.out.println("Available spots: " + availableSpots + " / " + totalSpots);
+        for (int i = 0; i < parkingStatus.length; i++) {
+            if (parkingStatus[i] != null) {
+                System.out.println("Spot " + (i + 1) + ": Occupied by vehicle " + parkingStatus[i]);
+            } else {
+                System.out.println("Spot " + (i + 1) + ": Available");
+            }
+        }
+    }
+}
