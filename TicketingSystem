@@ -1,0 +1,47 @@
+package com.mycompany.parkinglotsystem;
+
+/**
+ *
+ * @author ericr
+ */
+import java.time.LocalDateTime;
+import java.time.Duration;
+
+public class TicketingSystem {
+    private String vehicleId;
+    private LocalDateTime entryTime;
+    private LocalDateTime exitTime;
+
+    // Constructor
+    public TicketingSystem(String vehicleId) {
+        this.vehicleId = vehicleId;
+    }
+
+    // Set the entry time when vehicle enters the parking lot
+    public void setEntryTime() {
+        this.entryTime = LocalDateTime.now();
+    }
+
+    // Set the exit time when the vehicle exits the parking lot
+    public void setExitTime() {
+        this.exitTime = LocalDateTime.now();
+    }
+
+    // Display ticket details (including entry and exit times)
+    public void showTicketDetails() {
+        if (entryTime != null && exitTime != null) {
+            Duration duration = Duration.between(entryTime, exitTime);
+            System.out.println("Ticket for vehicle: " + vehicleId);
+            System.out.println("Entry time: " + entryTime);
+            System.out.println("Exit time: " + exitTime);
+            System.out.println("Parking duration: " + duration.toHours() + " hours, " +
+                    (duration.toMinutes() % 60) + " minutes, " + (duration.getSeconds() % 60) + " seconds");
+        } else {
+            System.out.println("No entry or exit times available for vehicle: " + vehicleId);
+        }
+    }
+
+    public String getVehicleId() {
+        return vehicleId;
+    }
+}
