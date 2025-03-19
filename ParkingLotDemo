@@ -1,0 +1,220 @@
+package com.mycompany.parkinglotdemo;
+
+/**
+ *
+ * @author ericr
+ */
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.Scanner;
+
+public class ParkingLotDemo {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        
+        // Initialize the parking lot with 5 spots
+        ParkingLot parkingLot = new ParkingLot(5);
+        
+        // Demo loop
+        while (true) {
+            System.out.println("\n--- Parking Lot Management System ---");
+            System.out.println("1. Show parking lot availability");
+            System.out.println("2. Assign parking spot");
+            System.out.println("3. Exit vehicle");
+            System.out.println("4. Process payment");
+            System.out.println("5. Exit system");
+            System.out.print("Choose an option (1-5): ");
+            
+            int option = scanner.nextInt();
+            scanner.nextLine();  // Consume newline character
+            
+            switch (option) {
+                case 1:
+                    // Show availability
+                    parkingLot.showAvailability();
+                    break;
+                
+                case 2:
+                    // Assign parking spot to a new vehicle
+                    System.out.print("Enter vehicle ID to assign a spot: ");
+                    String vehicleId = scanner.nextLine();
+                    Integer spot = parkingLot.assignSpot(vehicleId);
+                    if (spot != null) {
+                        System.out.println("Vehicle assigned to spot: " + spot);
+                    } else {
+                        System.out.println("No available spots.");
+                    }
+                    break;
+                
+                case 3:
+                    // Exit vehicle and free spot
+                    System.out.print("Enter spot number to exit vehicle: ");
+                    int spotNumber = scanner.nextInt();
+                    parkingLot.exitVehicle(spotNumber);
+                    break;
+                
+                case 4:
+                    // Process payment for vehicle that has exited
+                    System.out.print("Enter vehicle ID to process payment: ");
+                    vehicleId = scanner.nextLine();
+                    System.out.print("Enter the amount for payment: $");
+                    double amount = scanner.nextDouble();
+                    TicketingSystem ticket = parkingLot.getTicketForVehicle(vehicleId);
+                    if (ticket != null) {
+                        PaymentSystem paymentSystem = new PaymentSystem(parkingLot, ticket);
+                        paymentSystem.issueTicketAndProcessPayment(vehicleId, amount);
+                    } else {
+                        System.out.println("No ticket found for this vehicle.");
+                    }
+                    break;
+                
+                case 5:
+                    // Exit system
+                    System.out.println("Exiting the system. Goodbye!");
+                    scanner.close();
+                    return;
+                
+                default:
+                    System.out.println("Invalid option. Please try again.");
+            }
+        }
+    }
+}
+
+class ParkingLot {
+    private int totalSpots;
+    private int availableSpots;
+    private String[] parkingStatus;
+    private TicketingSystem[] ticketSystems;
+
+    // Constructor
+    public ParkingLot(int totalSpots) {
+        this.totalSpots = totalSpots;
+        this.availableSpots = totalSpots;
+        this.parkingStatus = new String[totalSpots]; // null means spot is free
+        this.ticketSystems = new TicketingSystem[totalSpots]; // Ticket systems for each vehicle
+    }
+
+    // Method to assign a spot to a vehicle
+    public Integer assignSpot(String vehicleId) {
+        if (availableSpots > 0) {
+            for (int i = 0; i < parkingStatus.length; i++) {
+                if (parkingStatus[i] == null) {  // If spot is free
+                    parkingStatus[i] = vehicleId;  // Assign the vehicle to the spot
+                    availableSpots--;
+                    TicketingSystem ticket = new TicketingSystem(vehicleId);
+                    ticket.setEntryTime();  // Set the entry time when the vehicle is assigned
+                    ticketSystems[i] = ticket;  // Save the ticket system for this spot
+                    System.out.println("Spot " + (i + 1) + " assigned to vehicle: " + vehicleId);
+                    return i + 1;  // Returning spot number (1-indexed)
+                }
+            }
+        } else {
+            System.out.println("Parking lot is full! Cannot assign spot.");
+            return null;  // No spots available
+        }
+        return null;
+    }
+
+    // Method to remove a vehicle and free up a spot
+    public void exitVehicle(int spotNumber) {
+        if (spotNumber > 0 && spotNumber <= totalSpots) {
+            if (parkingStatus[spotNumber - 1] != null) {
+                TicketingSystem ticket = ticketSystems[spotNumber - 1];
+                ticket.setExitTime();  // Set the exit time when the vehicle exits
+                System.out.println("Vehicle " + parkingStatus[spotNumber - 1] + " is exiting from spot " + spotNumber);
+                ticket.showTicketDetails();  // Show ticket details with entry and exit times
+                parkingStatus[spotNumber - 1] = null;
+                ticketSystems[spotNumber - 1] = null;  // Clear the ticket system for this spot
+                availableSpots++;
+            } else {
+                System.out.println("Spot " + spotNumber + " is already vacant.");
+            }
+        } else {
+            System.out.println("Invalid spot number.");
+        }
+    }
+
+    // Method to show the parking availability dashboard
+    public void showAvailability() {
+        System.out.println("Available spots: " + availableSpots + " / " + totalSpots);
+        for (int i = 0; i < parkingStatus.length; i++) {
+            if (parkingStatus[i] != null) {
+                System.out.println("Spot " + (i + 1) + ": Occupied by vehicle " + parkingStatus[i]);
+            } else {
+                System.out.println("Spot " + (i + 1) + ": Available");
+            }
+        }
+    }
+
+    // Get ticket for a specific vehicle ID
+    public TicketingSystem getTicketForVehicle(String vehicleId) {
+        for (TicketingSystem ticket : ticketSystems) {
+            if (ticket != null && ticket.getVehicleId().equals(vehicleId)) {
+                return ticket;
+            }
+        }
+        return null;
+    }
+}
+
+class TicketingSystem {
+    private String vehicleId;
+    private LocalDateTime entryTime;
+    private LocalDateTime exitTime;
+
+    // Constructor
+    public TicketingSystem(String vehicleId) {
+        this.vehicleId = vehicleId;
+    }
+
+    // Set the entry time when vehicle enters the parking lot
+    public void setEntryTime() {
+        this.entryTime = LocalDateTime.now();
+    }
+
+    // Set the exit time when the vehicle exits the parking lot
+    public void setExitTime() {
+        this.exitTime = LocalDateTime.now();
+    }
+
+    // Display ticket details (including entry and exit times)
+    public void showTicketDetails() {
+        if (entryTime != null && exitTime != null) {
+            Duration duration = Duration.between(entryTime, exitTime);
+            System.out.println("Ticket for vehicle: " + vehicleId);
+            System.out.println("Entry time: " + entryTime);
+            System.out.println("Exit time: " + exitTime);
+            System.out.println("Parking duration: " + duration.toHours() + " hours, " +
+                    (duration.toMinutes() % 60) + " minutes, " + (duration.getSeconds() % 60) + " seconds");
+        } else {
+            System.out.println("No entry or exit times available for vehicle: " + vehicleId);
+        }
+    }
+
+    public String getVehicleId() {
+        return vehicleId;
+    }
+}
+
+class PaymentSystem {
+    private ParkingLot parkingLot;
+    private TicketingSystem ticket;
+
+    // Constructor
+    public PaymentSystem(ParkingLot parkingLot, TicketingSystem ticket) {
+        this.parkingLot = parkingLot;
+        this.ticket = ticket;
+    }
+
+    // Process payment and issue ticket
+    public void issueTicketAndProcessPayment(String vehicleId, double amount) {
+        // Assuming that the ticket is already created and the vehicle has entered the lot
+        if (ticket != null) {
+            System.out.println("Payment of $" + amount + " received for vehicle " + vehicleId);
+        } else {
+            System.out.println("No entry or exit times available for vehicle: " + vehicleId);
+        }
+    }
+}
+
