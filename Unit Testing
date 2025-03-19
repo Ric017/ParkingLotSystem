@@ -1,1 +1,73 @@
+package com.mycompany.parkinglotsystem;
+
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+class ParkingLotTest {
+    
+    private ParkingLot parkingLot;
+
+    @BeforeEach
+    void setUp() {
+        // Initialize the ParkingLot instance before each test, with 5 spots for testing
+        parkingLot = new ParkingLot(5);
+    }
+
+    @Test
+    void testAssignSpot() {
+        // Assign a vehicle to a spot and verify it's assigned correctly
+        Integer spot = parkingLot.assignSpot("ABC123");
+        assertNotNull(spot, "Spot should be assigned");
+        assertEquals(5, parkingLot.getAvailableSpots(), "There should be 4 available spots after assignment.");
+    }
+
+    @Test
+    void testAssignSpotWhenFull() {
+        // Fill the parking lot
+        parkingLot.assignSpot("ABC123");
+        parkingLot.assignSpot("XYZ456");
+        parkingLot.assignSpot("LMN789");
+        parkingLot.assignSpot("PQR321");
+        parkingLot.assignSpot("DEF654");
+
+        // Try to assign another vehicle when the lot is full
+        Integer spot = parkingLot.assignSpot("GHI987");
+        assertNull(spot, "Parking lot is full, no spot should be assigned.");
+    }
+
+    @Test
+    void testExitVehicle() {
+        // Assign a vehicle to a spot
+        parkingLot.assignSpot("ABC123");
+
+        // Exit the vehicle and check availability
+        parkingLot.exitVehicle(1);
+        assertEquals(5, parkingLot.getAvailableSpots(), "There should be 5 available spots after exit.");
+    }
+
+    @Test
+    void testExitVehicleInvalidSpot() {
+        // Try exiting a vehicle from an invalid spot (outside valid range)
+        parkingLot.exitVehicle(6);  // Spot 6 doesn't exist
+        parkingLot.exitVehicle(0);  // Spot 0 is invalid
+        assertEquals(5, parkingLot.getAvailableSpots(), "Available spots should not change for invalid exits.");
+    }
+
+    @Test
+    void testShowAvailability() {
+        // Assign a vehicle and verify availability
+        parkingLot.assignSpot("ABC123");
+        String availability = getAvailabilityString(parkingLot);
+        assertTrue(availability.contains("Spot 1: Occupied by vehicle ABC123"), "Spot 1 should show as occupied.");
+    }
+
+    private String getAvailabilityString(ParkingLot lot) {
+        // Helper function to capture and return the parking lot availability output
+        final java.io.ByteArrayOutputStream outContent = new java.io.ByteArrayOutputStream();
+        System.setOut(new java.io.PrintStream(outContent));
+        lot.showAvailability();
+        return outContent.toString();
+    }
+}
 
