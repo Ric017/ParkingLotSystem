@@ -15,3 +15,7 @@ This system simulates the management of a parking lot, including vehicle assignm
 
 ## Requirements:
 - Java JDK 8 or higher.
+
+2. To run unit tests, use a testing framework like JUnit. 
+Ensure all the classes are compiled before running the tests.
+
