@@ -57,6 +57,4 @@ Before running the data collection script, make sure the following are set up:
    - After running the script, the parking lot data will be logged in the file `parking_data_log.txt` in the root directory of the project.
    - Open the `parking_data_log.txt` file to view the details of the parking lot availability, vehicle assignments, and exit times.
 
-## Example Output in `parking_data_log.txt`
-
 
